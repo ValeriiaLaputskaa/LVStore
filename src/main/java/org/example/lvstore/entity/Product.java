@@ -22,6 +22,6 @@ public class Product {
 
     private Double price;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String description;
 }
