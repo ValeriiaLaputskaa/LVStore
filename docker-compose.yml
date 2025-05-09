@@ -41,6 +41,21 @@ services:
     networks:
       - app-network
 
+  tests:
+    image: maven:3.9.6-eclipse-temurin-17
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: mvn clean test
+    depends_on:
+      - db
+    environment:
+      - SPRING_DATASOURCE_URL=${POSTGRES_URL}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - app-network
+
 volumes:
   pgdata:
 
