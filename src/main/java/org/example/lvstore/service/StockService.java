@@ -1,0 +1,70 @@
+package org.example.lvstore.service;
+
+import lombok.RequiredArgsConstructor;
+import org.example.lvstore.entity.Product;
+import org.example.lvstore.entity.Stock;
+import org.example.lvstore.entity.Store;
+import org.example.lvstore.payload.stock.CreateStockRequest;
+import org.example.lvstore.payload.stock.UpdateStockRequest;
+import org.example.lvstore.repository.StockRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
+@Service
+@RequiredArgsConstructor
+public class StockService {
+
+    private final StockRepository stockRepository;
+    private final ProductService productService;
+    private final StoreService storeService;
+
+    public Stock getStockById(Long id) {
+        return stockRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException(String.format("Stock with id %s not found", id)));
+    }
+
+    public Stock createStock(CreateStockRequest request) {
+        Product product = productService.getProductById(request.productId());
+        Store store = storeService.getStoreById(request.storeId());
+
+        Stock stock = Stock.builder()
+                .product(product)
+                .store(store)
+                .quantity(request.quantity())
+                .build();
+
+        return stockRepository.save(stock);
+    }
+
+    public List<Stock> getAllStocks() {
+        return stockRepository.findAll();
+    }
+
+    public Stock updateStock(UpdateStockRequest request) {
+        Stock stock = getStockById(request.id());
+
+        Product product = productService.getProductById(request.productId());
+        Store store = storeService.getStoreById(request.storeId());
+
+        stock.setProduct(product);
+        stock.setStore(store);
+        stock.setQuantity(request.quantity());
+
+        return stockRepository.save(stock);
+    }
+
+    public void deleteStock(Long id) {
+        stockRepository.deleteById(id);
+    }
+
+    public List<Stock> getStocksByStoreId(Long storeId) {
+        return stockRepository.findByStoreId(storeId);
+    }
+
+    public List<Stock> getStocksByProductId(Long productId) {
+        return stockRepository.findByProductId(productId);
+    }
+
+}
