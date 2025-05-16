@@ -23,4 +23,6 @@ public class Stock {
     private Store store;
 
     private Integer quantity;
+    private Integer minQuantity;
+
 }

@@ -33,6 +33,7 @@ public class StockService {
                 .product(product)
                 .store(store)
                 .quantity(request.quantity())
+                .minQuantity(request.minQuantity())
                 .build();
 
         return stockRepository.save(stock);
@@ -51,6 +52,7 @@ public class StockService {
         stock.setProduct(product);
         stock.setStore(store);
         stock.setQuantity(request.quantity());
+        stock.setMinQuantity(request.minQuantity());
 
         return stockRepository.save(stock);
     }
@@ -67,4 +69,9 @@ public class StockService {
         return stockRepository.findByProductId(productId);
     }
 
+    public List<Stock> getCriticalStocksByStoreId(Long storeId) {
+        return stockRepository.findByStoreId(storeId).stream()
+                .filter(stock -> stock.getQuantity() <= stock.getMinQuantity())
+                .toList();
+    }
 }

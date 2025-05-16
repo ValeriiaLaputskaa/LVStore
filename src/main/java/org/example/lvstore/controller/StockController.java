@@ -58,4 +58,10 @@ public class StockController {
     public ResponseEntity<List<Stock>> getStocksByProduct(@RequestParam Long productId) {
         return ResponseEntity.ok(stockService.getStocksByProductId(productId));
     }
+
+    @GetMapping("/critical")
+    public ResponseEntity<List<Stock>> getCriticalStocks(@RequestParam Long storeId) {
+        return ResponseEntity.ok(stockService.getCriticalStocksByStoreId(storeId));
+    }
+
 }
