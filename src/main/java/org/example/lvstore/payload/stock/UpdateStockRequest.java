@@ -4,6 +4,7 @@ public record UpdateStockRequest(
         Long id,
         Long productId,
         Long storeId,
-        Integer quantity
+        Integer quantity,
+        Integer minQuantity
 ) {
 }

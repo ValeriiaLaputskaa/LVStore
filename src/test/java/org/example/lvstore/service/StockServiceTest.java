@@ -36,7 +36,7 @@ public class StockServiceTest {
 
     @Test
     void testCreateStock_Success() {
-        CreateStockRequest request = new CreateStockRequest(1L, 2L, 100);
+        CreateStockRequest request = new CreateStockRequest(1L, 2L, 100, 30);
         Product product = new Product();
         product.setId(1L);
         Store store = new Store();
@@ -104,7 +104,7 @@ public class StockServiceTest {
         existing.setId(1L);
         existing.setQuantity(50);
 
-        UpdateStockRequest request = new UpdateStockRequest(1L, 10L, 20L, 200);
+        UpdateStockRequest request = new UpdateStockRequest(1L, 10L, 20L, 200, 30);
 
         when(stockRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(productService.getProductById(10L)).thenReturn(newProduct);
@@ -122,7 +122,7 @@ public class StockServiceTest {
 
     @Test
     void testUpdateStock_NotFound() {
-        UpdateStockRequest request = new UpdateStockRequest(123L, 1L, 1L, 10);
+        UpdateStockRequest request = new UpdateStockRequest(123L, 1L, 1L, 10, 10);
         when(stockRepository.findById(123L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> stockService.updateStock(request));
@@ -156,6 +156,43 @@ public class StockServiceTest {
         List<Stock> result = stockService.getStocksByProductId(99L);
         assertEquals(1, result.size());
         verify(stockRepository, times(1)).findByProductId(99L);
+    }
+
+    @Test
+    void testGetCriticalStocksByStoreId() {
+        Long storeId = 1L;
+
+        Store store = new Store();
+        store.setId(storeId);
+
+        Product product = new Product();
+        product.setId(10L);
+
+        Stock criticalStock = Stock.builder()
+                .id(1L)
+                .store(store)
+                .product(product)
+                .quantity(5)
+                .minQuantity(10)
+                .build();
+
+        Stock nonCriticalStock = Stock.builder()
+                .id(2L)
+                .store(store)
+                .product(product)
+                .quantity(20)
+                .minQuantity(10)
+                .build();
+
+        when(stockRepository.findByStoreId(storeId)).thenReturn(List.of(criticalStock, nonCriticalStock));
+
+        List<Stock> result = stockService.getCriticalStocksByStoreId(storeId);
+
+        assertEquals(1, result.size());
+        assertTrue(result.contains(criticalStock));
+        assertFalse(result.contains(nonCriticalStock));
+
+        verify(stockRepository, times(1)).findByStoreId(storeId);
     }
 
 }
