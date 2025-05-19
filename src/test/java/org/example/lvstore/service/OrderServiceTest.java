@@ -1,12 +1,10 @@
 package org.example.lvstore.service;
 
-import org.example.lvstore.entity.Order;
-import org.example.lvstore.entity.Product;
-import org.example.lvstore.entity.Store;
-import org.example.lvstore.entity.User;
+import org.example.lvstore.entity.*;
 import org.example.lvstore.payload.order.CreateOrderRequest;
 import org.example.lvstore.payload.order.UpdateOrderRequest;
 import org.example.lvstore.repository.OrderRepository;
+import org.example.lvstore.service.enams.OrderStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +30,8 @@ public class OrderServiceTest {
     private StoreService storeService;
     @Mock
     private UserService userService;
+    @Mock
+    private StockService stockService;
     @InjectMocks
     private OrderService orderService;
 
@@ -51,7 +51,7 @@ public class OrderServiceTest {
         User mockUser = new User();
 
         Order expectedOrder = Order.builder()
-                .status("NEW")
+                .status(OrderStatus.NEW)
                 .quantity(5)
                 .product(mockProduct)
                 .store(mockStore)
@@ -66,7 +66,7 @@ public class OrderServiceTest {
         Order actualOrder = orderService.createOrder(request);
 
         assertNotNull(actualOrder);
-        assertEquals("NEW", actualOrder.getStatus());
+        assertEquals(OrderStatus.NEW, actualOrder.getStatus());
         assertEquals(5, actualOrder.getQuantity());
         assertEquals(mockProduct, actualOrder.getProduct());
         assertEquals(mockStore, actualOrder.getStore());
@@ -82,7 +82,7 @@ public class OrderServiceTest {
     @Test
     void testUpdateOrder_Success() {
         UpdateOrderRequest request = new UpdateOrderRequest(
-                1L, "UPDATED", 10, LocalDateTime.now(), 1L, 2L, 3L
+                1L, 10, LocalDateTime.now(), 1L, 2L, 3L
         );
 
         Order existingOrder = new Order();
@@ -98,7 +98,6 @@ public class OrderServiceTest {
 
         Order updated = orderService.updateOrder(request);
 
-        assertEquals("UPDATED", updated.getStatus());
         assertEquals(10, updated.getQuantity());
         assertEquals(product, updated.getProduct());
         assertEquals(store, updated.getStore());
@@ -109,7 +108,7 @@ public class OrderServiceTest {
     @Test
     void testUpdateOrder_Failure() {
         UpdateOrderRequest request = new UpdateOrderRequest(
-                404L, "ERROR", 1, LocalDateTime.now(), 1L, 1L, 1L
+                404L, 1, LocalDateTime.now(), 1L, 1L, 1L
         );
         when(orderRepository.findById(404L)).thenReturn(Optional.empty());
 
@@ -164,11 +163,11 @@ public class OrderServiceTest {
     @Test
     void testGetOrdersByStatus_Success() {
         Order o = new Order();
-        when(orderRepository.findByStatus("PENDING")).thenReturn(List.of(o));
+        when(orderRepository.findByStatus("CONFIRMED")).thenReturn(List.of(o));
 
-        List<Order> result = orderService.getOrdersByStatus("PENDING");
+        List<Order> result = orderService.getOrdersByStatus("CONFIRMED");
         assertEquals(1, result.size());
-        verify(orderRepository, times(1)).findByStatus("PENDING");
+        verify(orderRepository, times(1)).findByStatus("CONFIRMED");
     }
 
     @Test
@@ -176,5 +175,111 @@ public class OrderServiceTest {
         doNothing().when(orderRepository).deleteById(10L);
         orderService.deleteOrder(10L);
         verify(orderRepository, times(1)).deleteById(10L);
+    }
+
+    private Order createOrder(OrderStatus status) {
+        Product product = new Product();
+        product.setId(10L);
+
+        Store store = new Store();
+        store.setId(20L);
+
+        return Order.builder()
+                .id(1L)
+                .status(status)
+                .quantity(5)
+                .createdAt(LocalDateTime.now())
+                .product(product)
+                .store(store)
+                .build();
+    }
+
+    @Test
+    void confirmOrder_shouldUpdateStatus_whenOrderIsNew() {
+        Order order = createOrder(OrderStatus.NEW);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Order result = orderService.confirmOrder(1L);
+
+        assertEquals(OrderStatus.CONFIRMED, result.getStatus());
+    }
+
+    @Test
+    void confirmOrder_shouldThrow_whenOrderIsNotNew() {
+        Order order = createOrder(OrderStatus.CONFIRMED);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+
+        assertThrows(IllegalStateException.class, () -> orderService.confirmOrder(1L));
+    }
+
+    @Test
+    void cancelOrder_shouldUpdateStatus_whenAllowed() {
+        Order order = createOrder(OrderStatus.NEW);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Order result = orderService.cancelOrder(1L);
+
+        assertEquals(OrderStatus.CANCELLED, result.getStatus());
+    }
+
+    @Test
+    void cancelOrder_shouldThrow_whenOrderIsCancelledOrReceived() {
+        for (OrderStatus status : new OrderStatus[]{OrderStatus.CANCELLED, OrderStatus.RECEIVED}) {
+            Order order = createOrder(status);
+            when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+            assertThrows(IllegalStateException.class, () -> orderService.cancelOrder(1L));
+        }
+    }
+
+    @Test
+    void shipOrder_shouldUpdateStatusAndDecreaseStock_whenStockAvailable() {
+        
+        Order order = createOrder(OrderStatus.CONFIRMED);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(stockService.isInStock(10L, 20L, 5)).thenReturn(true);
+        when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Order result = orderService.shipOrder(1L);
+
+        verify(stockService).decreaseStock(10L, 20L, 5);
+        assertEquals(OrderStatus.SHIPPED, result.getStatus());
+    }
+
+    @Test
+    void shipOrder_shouldThrow_whenNotConfirmed() {
+        Order order = createOrder(OrderStatus.NEW);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        assertThrows(IllegalStateException.class, () -> orderService.shipOrder(1L));
+    }
+
+    @Test
+    void shipOrder_shouldThrow_whenNotEnoughStock() {
+        Order order = createOrder(OrderStatus.CONFIRMED);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(stockService.isInStock(10L, 20L, 5)).thenReturn(false);
+
+        assertThrows(IllegalStateException.class, () -> orderService.shipOrder(1L));
+    }
+
+
+    @Test
+    void markAsDelivered_shouldUpdateStatus_whenShipped() {
+        Order order = createOrder(OrderStatus.SHIPPED);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+        when(orderRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        Order result = orderService.markAsDelivered(1L);
+
+        assertEquals(OrderStatus.RECEIVED, result.getStatus());
+    }
+
+    @Test
+    void markAsDelivered_shouldThrow_whenNotShipped() {
+        Order order = createOrder(OrderStatus.NEW);
+        when(orderRepository.findById(1L)).thenReturn(Optional.of(order));
+
+        assertThrows(IllegalStateException.class, () -> orderService.markAsDelivered(1L));
     }
 }

@@ -60,4 +60,24 @@ public class OrderController {
     public void deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
     }
+
+    @PutMapping("/{id}/confirm")
+    public ResponseEntity<Order> confirmOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.confirmOrder(id));
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<Order> cancelOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.cancelOrder(id));
+    }
+
+    @PutMapping("/{id}/ship")
+    public ResponseEntity<Order> shipOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.shipOrder(id));
+    }
+
+    @PutMapping("/{id}/deliver")
+    public ResponseEntity<Order> deliverOrder(@PathVariable Long id) {
+        return ResponseEntity.ok(orderService.markAsDelivered(id));
+    }
 }

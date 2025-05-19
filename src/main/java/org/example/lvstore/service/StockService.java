@@ -74,4 +74,20 @@ public class StockService {
                 .filter(stock -> stock.getQuantity() <= stock.getMinQuantity())
                 .toList();
     }
+
+    public boolean isInStock(Long productId, Long storeId, Integer quantity) {
+        Stock stock = getStockByProductIdAndStoreId(productId, storeId);
+        return stock.getQuantity() >= quantity;
+    }
+
+    private Stock getStockByProductIdAndStoreId(Long productId, Long storeId) {
+        return stockRepository.findByProductIdAndStoreId(productId, storeId)
+                .orElseThrow(() -> new NoSuchElementException(String.format("Stock with productId %s and storeId %s not found", productId, storeId)));
+    }
+
+    public void decreaseStock(Long productId, Long storeId, Integer quantity) {
+        Stock stock = getStockByProductIdAndStoreId(productId, storeId);
+        stock.setQuantity(stock.getQuantity() - quantity);
+        stockRepository.save(stock);
+    }
 }
