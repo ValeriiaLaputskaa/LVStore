@@ -8,6 +8,7 @@ import org.example.lvstore.entity.User;
 import org.example.lvstore.payload.order.CreateOrderRequest;
 import org.example.lvstore.payload.order.UpdateOrderRequest;
 import org.example.lvstore.repository.OrderRepository;
+import org.example.lvstore.service.enams.OrderStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,10 +22,11 @@ public class OrderService {
     private final ProductService productService;
     private final StoreService storeService;
     private final UserService userService;
+    private final StockService stockService;
 
     public Order createOrder(CreateOrderRequest createOrderRequest) {
         Order order = Order.builder()
-                .status(createOrderRequest.status())
+                .status(OrderStatus.valueOf(createOrderRequest.status()))
                 .quantity(createOrderRequest.quantity())
                 .createdAt(createOrderRequest.createdAt())
                 .product(productService.getProductById(createOrderRequest.productId()))
@@ -58,7 +60,6 @@ public class OrderService {
         Store store = storeService.getStoreById(updateOrderRequest.storeId());
         User creator = userService.getUserById(updateOrderRequest.creatorId());
 
-        order.setStatus(updateOrderRequest.status());
         order.setQuantity(updateOrderRequest.quantity());
         order.setCreatedAt(updateOrderRequest.createdAt());
         order.setProduct(product);
@@ -70,5 +71,48 @@ public class OrderService {
 
     public void deleteOrder(Long id) {
         orderRepository.deleteById(id);
+    }
+
+    public Order confirmOrder(Long id) {
+        Order order = getOrderById(id);
+        if (order.getStatus() != OrderStatus.NEW) {
+            throw new IllegalStateException("Only NEW orders can be confirmed");
+        }
+        order.setStatus(OrderStatus.CONFIRMED);
+        return orderRepository.save(order);
+    }
+
+    public Order cancelOrder(Long id) {
+        Order order = getOrderById(id);
+        if (order.getStatus() == OrderStatus.CANCELLED || order.getStatus() == OrderStatus.RECEIVED) {
+            throw new IllegalStateException("Cannot cancel order in this state");
+        }
+        order.setStatus(OrderStatus.CANCELLED);
+        return orderRepository.save(order);
+    }
+
+    public Order shipOrder(Long id) {
+        Order order = getOrderById(id);
+        if (order.getStatus() != OrderStatus.CONFIRMED) {
+            throw new IllegalStateException("Only CONFIRMED orders can be shipped");
+        }
+
+        boolean inStock = stockService.isInStock(order.getProduct().getId(), order.getStore().getId(), order.getQuantity());
+        if (!inStock) {
+            throw new IllegalStateException("Not enough stock to ship order");
+        }
+
+        stockService.decreaseStock(order.getProduct().getId(), order.getStore().getId(), order.getQuantity());
+        order.setStatus(OrderStatus.SHIPPED);
+        return orderRepository.save(order);
+    }
+
+    public Order markAsDelivered(Long id) {
+        Order order = getOrderById(id);
+        if (order.getStatus() != OrderStatus.SHIPPED) {
+            throw new IllegalStateException("Only SHIPPED orders can be marked as delivered");
+        }
+        order.setStatus(OrderStatus.RECEIVED);
+        return orderRepository.save(order);
     }
 }

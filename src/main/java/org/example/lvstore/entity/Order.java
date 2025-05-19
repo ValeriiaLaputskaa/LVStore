@@ -2,6 +2,7 @@ package org.example.lvstore.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.lvstore.service.enams.OrderStatus;
 
 import java.time.LocalDateTime;
 
@@ -17,7 +18,8 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     private Integer quantity;
 

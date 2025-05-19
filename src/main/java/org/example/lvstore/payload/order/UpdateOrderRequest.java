@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 
 public record UpdateOrderRequest(
         Long id,
-        String status,
         Integer quantity,
         LocalDateTime createdAt,
         Long productId,
