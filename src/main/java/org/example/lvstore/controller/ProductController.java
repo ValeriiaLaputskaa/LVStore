@@ -7,13 +7,12 @@ import org.example.lvstore.payload.product.UpdateProductRequest;
 import org.example.lvstore.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/products")
 public class ProductController {
