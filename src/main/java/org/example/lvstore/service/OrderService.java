@@ -8,7 +8,7 @@ import org.example.lvstore.entity.User;
 import org.example.lvstore.payload.order.CreateOrderRequest;
 import org.example.lvstore.payload.order.UpdateOrderRequest;
 import org.example.lvstore.repository.OrderRepository;
-import org.example.lvstore.service.enams.OrderStatus;
+import org.example.lvstore.service.enums.OrderStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

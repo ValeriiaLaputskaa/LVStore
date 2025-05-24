@@ -1,4 +1,4 @@
-package org.example.lvstore.service.enams;
+package org.example.lvstore.service.enums;
 
 public enum OrderStatus {
     NEW,
