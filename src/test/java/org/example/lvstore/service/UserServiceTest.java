@@ -39,7 +39,7 @@ public class UserServiceTest {
                 .username("lera1")
                 .password("lera123")
                 .email("lera@example.com")
-                .role(Role.valueOf("Store_Administrator"))
+                .role(Role.fromTitle("Store_Administrator"))
                 .build();
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);

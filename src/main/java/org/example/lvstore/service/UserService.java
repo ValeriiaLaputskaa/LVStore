@@ -34,7 +34,7 @@ public class UserService {
                 .username(createUserRequest.username())
                 .password(createUserRequest.password())
                 .email(createUserRequest.email())
-                .role(Role.valueOf(createUserRequest.role()))
+                .role(Role.fromTitle(createUserRequest.role()))
                 .build();
         return userRepository.save(user);
     }
@@ -66,7 +66,7 @@ public class UserService {
         user.setUsername(updateUserRequest.username());
         user.setPassword(updateUserRequest.password());
         user.setEmail(updateUserRequest.email());
-        user.setRole(Role.valueOf(updateUserRequest.role()));
+        user.setRole(Role.fromTitle(updateUserRequest.role()));
 
         return userRepository.save(user);
     }
