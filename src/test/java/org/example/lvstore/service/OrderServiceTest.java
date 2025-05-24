@@ -4,7 +4,7 @@ import org.example.lvstore.entity.*;
 import org.example.lvstore.payload.order.CreateOrderRequest;
 import org.example.lvstore.payload.order.UpdateOrderRequest;
 import org.example.lvstore.repository.OrderRepository;
-import org.example.lvstore.service.enams.OrderStatus;
+import org.example.lvstore.service.enums.OrderStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

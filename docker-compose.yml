@@ -11,8 +11,11 @@ services:
       - SPRING_DATASOURCE_URL=${POSTGRES_URL}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
     networks:
       - app-network
+    restart: unless-stopped
 
   db:
     image: postgres:15
@@ -53,6 +56,8 @@ services:
       - SPRING_DATASOURCE_URL=${POSTGRES_URL}
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - CLIENT_ID=${CLIENT_ID}
+      - CLIENT_SECRET=${CLIENT_SECRET}
     networks:
       - app-network
 
