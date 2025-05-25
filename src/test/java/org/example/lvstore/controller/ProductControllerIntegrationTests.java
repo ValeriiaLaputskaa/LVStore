@@ -27,7 +27,7 @@ public class ProductControllerIntegrationTests {
     private ObjectMapper objectMapper;
 
     @Test
-    @WithMockUser(authorities = "Store_Administrator")
+    @WithMockUser(authorities = "STORE_ADMINISTRATOR")
     void createProduct_Success_AsAdmin() throws Exception {
         Long productId = null;
         try {
@@ -58,7 +58,7 @@ public class ProductControllerIntegrationTests {
     }
 
     @Test
-    @WithMockUser(authorities = "Seller")
+    @WithMockUser(authorities = "SELLER")
     void createProduct_Forbidden_AsSeller() throws Exception {
         CreateProductRequest request = new CreateProductRequest(
                 "Laptop",
@@ -75,7 +75,7 @@ public class ProductControllerIntegrationTests {
     }
 
     @Test
-    @WithMockUser(authorities = "Store_Administrator")
+    @WithMockUser(authorities = "STORE_ADMINISTRATOR")
     void createProduct_ProductExists_AsAdmin() throws Exception {
         Long productId = null;
         try {
@@ -111,7 +111,7 @@ public class ProductControllerIntegrationTests {
     }
 
     @Test
-    @WithMockUser(authorities = "Store_Administrator")
+    @WithMockUser(authorities = "STORE_ADMINISTRATOR")
     void updateProduct_Success_AsAdmin() throws Exception {
         Long productId = null;
         try {
@@ -147,7 +147,7 @@ public class ProductControllerIntegrationTests {
     }
 
     @Test
-    @WithMockUser(authorities = "Store_Administrator")
+    @WithMockUser(authorities = "STORE_ADMINISTRATOR")
     void updateProduct_NotFound_ShouldReturn404() throws Exception {
         UpdateProductRequest request = new UpdateProductRequest(
                 9999L, "Невідомий", "Категорія", "0000000000000", 10.0, "Опис"
@@ -160,7 +160,7 @@ public class ProductControllerIntegrationTests {
     }
 
     @Test
-    @WithMockUser(authorities = "Store_Administrator")
+    @WithMockUser(authorities = "STORE_ADMINISTRATOR")
     void updateProduct_BarcodeConflict_ShouldReturn409() throws Exception {
         Long id1 = null, id2 = null;
         try {
@@ -196,7 +196,7 @@ public class ProductControllerIntegrationTests {
     }
 
     @Test
-    @WithMockUser(authorities = "Seller")
+    @WithMockUser(authorities = "SELLER")
     void updateProduct_ForbiddenForSeller_ShouldReturn403() throws Exception {
         UpdateProductRequest request = new UpdateProductRequest(
                 2L, "Назва", "Категорія", "1234567890123", 50.0, "Опис"
