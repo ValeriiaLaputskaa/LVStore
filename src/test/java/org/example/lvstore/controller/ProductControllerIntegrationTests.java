@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.lvstore.entity.Product;
 import org.example.lvstore.payload.product.CreateProductRequest;
 import org.example.lvstore.payload.product.UpdateProductRequest;
+import org.example.lvstore.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -12,7 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,6 +27,8 @@ public class ProductControllerIntegrationTests {
 
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    private ProductRepository productRepository;
 
     @Test
     @WithMockUser(authorities = "STORE_ADMINISTRATOR")
@@ -51,8 +55,7 @@ public class ProductControllerIntegrationTests {
             productId = created.getId();
         } finally {
             if (productId != null) {
-                mockMvc.perform(delete("/products/" + productId))
-                        .andExpect(status().isNoContent());
+                productRepository.deleteById(productId);
             }
         }
     }
@@ -97,15 +100,13 @@ public class ProductControllerIntegrationTests {
             Product created = objectMapper.readValue(response, Product.class);
             productId = created.getId();
 
-            // Повторне створення з тим самим штрихкодом
             mockMvc.perform(post("/products")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andExpect(status().isConflict());
         } finally {
             if (productId != null) {
-                mockMvc.perform(delete("/products/" + productId))
-                        .andExpect(status().isNoContent());
+                productRepository.deleteById(productId);
             }
         }
     }
@@ -140,8 +141,7 @@ public class ProductControllerIntegrationTests {
                     .andExpect(jsonPath("$.price").value(199.99));
         } finally {
             if (productId != null) {
-                mockMvc.perform(delete("/products/" + productId))
-                        .andExpect(status().isNoContent());
+                productRepository.deleteById(productId);
             }
         }
     }
@@ -164,7 +164,6 @@ public class ProductControllerIntegrationTests {
     void updateProduct_BarcodeConflict_ShouldReturn409() throws Exception {
         Long id1 = null, id2 = null;
         try {
-            // Створюємо два продукти
             CreateProductRequest product1 = new CreateProductRequest("Product1", "Test", "barcode111", 20.0, "Desc");
             CreateProductRequest product2 = new CreateProductRequest("Product2", "Test", "barcode222", 30.0, "Desc");
 
@@ -182,7 +181,6 @@ public class ProductControllerIntegrationTests {
                     .andReturn().getResponse().getContentAsString();
             id2 = objectMapper.readValue(response2, Product.class).getId();
 
-            // Оновлюємо 2-й продукт, використовуючи штрихкод 1-го
             UpdateProductRequest updateRequest = new UpdateProductRequest(id2, "New", "Cat", "barcode111", 50.0, "New");
 
             mockMvc.perform(put("/products")
@@ -190,8 +188,8 @@ public class ProductControllerIntegrationTests {
                             .content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(status().isConflict());
         } finally {
-            if (id1 != null) mockMvc.perform(delete("/products/" + id1)).andExpect(status().isNoContent());
-            if (id2 != null) mockMvc.perform(delete("/products/" + id2)).andExpect(status().isNoContent());
+            if (id1 != null) productRepository.deleteById(id1);
+            if (id2 != null)productRepository.deleteById(id2);
         }
     }
 
