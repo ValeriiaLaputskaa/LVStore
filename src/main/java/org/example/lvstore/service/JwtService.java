@@ -2,7 +2,6 @@ package org.example.lvstore.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.lvstore.entity.User;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
@@ -20,21 +19,21 @@ public class JwtService {
     private final JwtEncoder jwtEncoder;
     private final Duration TTL = Duration.ofDays(7);
 
-    public String generateToken(User user, Authentication authentication) {
+    public String generateToken(User user) {
         var now = Instant.now();
         var claims = JwtClaimsSet.builder()
                 .issuer("self")
                 .issuedAt(now)
                 .expiresAt(now.plus(TTL))
                 .subject(user.getUsername())
-                .claim("authorities", createScope(authentication))
+                .claim("authorities", createScope(user))
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
-    private String createScope(Authentication authentication) {
-        return authentication.getAuthorities().stream()
+    private String createScope(User user) {
+        return user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
     }
