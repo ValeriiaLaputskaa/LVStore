@@ -163,11 +163,11 @@ public class OrderServiceTest {
     @Test
     void testGetOrdersByStatus_Success() {
         Order o = new Order();
-        when(orderRepository.findByStatus("CONFIRMED")).thenReturn(List.of(o));
+        when(orderRepository.findByStatus(OrderStatus.CONFIRMED)).thenReturn(List.of(o));
 
         List<Order> result = orderService.getOrdersByStatus("CONFIRMED");
         assertEquals(1, result.size());
-        verify(orderRepository, times(1)).findByStatus("CONFIRMED");
+        verify(orderRepository, times(1)).findByStatus(OrderStatus.CONFIRMED);
     }
 
     @Test
