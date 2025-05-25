@@ -32,31 +32,30 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(c -> c
                 .requestMatchers("/login").permitAll()
                 // Продавець
-                .requestMatchers(HttpMethod.POST, "/orders").hasAuthority(SELLER.getTitle()) // створення замовлення
-                .requestMatchers(HttpMethod.PUT, "/orders/{id}/deliver").hasAuthority(SELLER.getTitle()) // підтвердження отримання
+                .requestMatchers(HttpMethod.POST, "/orders").hasAnyAuthority(SELLER.name(), STORE_ADMINISTRATOR.name()) // створення замовлення
+                .requestMatchers(HttpMethod.PUT, "/orders/{id}/deliver").hasAnyAuthority(SELLER.name(), STORE_ADMINISTRATOR.name()) // підтвердження отримання
 
                 // Менеджер складу
-                .requestMatchers(HttpMethod.PUT, "/orders/{id}/cancel").hasAuthority(WAREHOUSE_MANAGER.getTitle())
-                .requestMatchers(HttpMethod.PUT, "/orders/{id}/ship").hasAuthority(WAREHOUSE_MANAGER.getTitle())
+                .requestMatchers(HttpMethod.PUT, "/orders/{id}/cancel").hasAnyAuthority(WAREHOUSE_MANAGER.name(), STORE_ADMINISTRATOR.name())
+                .requestMatchers(HttpMethod.PUT, "/orders/{id}/ship").hasAuthority(WAREHOUSE_MANAGER.name())
 
                 // Адміністратор магазину
-                .requestMatchers(HttpMethod.POST, "/orders").hasAuthority(STORE_ADMINISTRATOR.getTitle()) // створення
-                .requestMatchers(HttpMethod.PUT, "/orders/{id}/confirm").hasAuthority(STORE_ADMINISTRATOR.getTitle())
-                .requestMatchers(HttpMethod.PUT, "/orders/{id}/cancel").hasAuthority(STORE_ADMINISTRATOR.getTitle())
-                .requestMatchers(HttpMethod.PUT, "/orders/{id}/deliver").hasAuthority(STORE_ADMINISTRATOR.getTitle())
+                .requestMatchers(HttpMethod.PUT, "/orders/{id}/confirm").hasAuthority(STORE_ADMINISTRATOR.name())
 
                 // Усі користувачі, які мають доступ до перегляду замовлень
                 .requestMatchers(HttpMethod.GET, "/orders", "/orders/**").hasAnyAuthority(
-                        SELLER.getTitle(), STORE_ADMINISTRATOR.getTitle(), WAREHOUSE_MANAGER.getTitle()
+                        SELLER.name(), STORE_ADMINISTRATOR.name(), WAREHOUSE_MANAGER.name()
                 )
 
                 // Інші доступи, що залежать від ролі:
                 // Склади, Продукти, Користувачі, Запаси в магазинах — лише адміністратор
-                .requestMatchers("/stores/**", "/products/**", "/users/**", "/stocks/**").hasAuthority(STORE_ADMINISTRATOR.getTitle())
+                .requestMatchers(HttpMethod.PUT, "/orders").hasAnyAuthority(STORE_ADMINISTRATOR.name())
+                .requestMatchers("/stores/**", "/users/**").hasAuthority(STORE_ADMINISTRATOR.name())
 
                 // Складські залишки, Продукти, Запаси в магазинах — менеджер складу
-                .requestMatchers("/warehouse-stocks/**", "/products/**", "/warehouses/**", "/stocks/**").hasAuthority(WAREHOUSE_MANAGER.getTitle())
+                .requestMatchers("/warehouse-stocks/**", "/warehouses/**").hasAuthority(WAREHOUSE_MANAGER.name())
 
+                .requestMatchers("/products/**", "/stocks/**").hasAnyAuthority(WAREHOUSE_MANAGER.name(), STORE_ADMINISTRATOR.name())
                 .anyRequest().authenticated()
         );
 
