@@ -7,12 +7,11 @@ import org.example.lvstore.payload.warehouse.UpdateWarehouseRequest;
 import org.example.lvstore.service.WarehouseService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/warehouses")
 public class WarehouseController {

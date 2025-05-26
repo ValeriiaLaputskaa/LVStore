@@ -7,12 +7,11 @@ import org.example.lvstore.payload.store.UpdateStoreRequest;
 import org.example.lvstore.service.StoreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/stores")
 public class StoreController {
