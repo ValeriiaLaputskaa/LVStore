@@ -25,7 +25,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         String lastName = oauth2User.getAttribute("family_name");
 
         String username = String.format("%s %s", first_name, lastName);
-        CreateUserRequest request = new CreateUserRequest(username, lastName, email, Role.SELLER.name());
+        CreateUserRequest request = new CreateUserRequest(username, email, Role.SELLER.name());
         userService.registerUserIfAbsent(request);
         return oauth2User;
     }

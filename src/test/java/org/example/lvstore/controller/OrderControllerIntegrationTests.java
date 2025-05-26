@@ -59,7 +59,6 @@ public class OrderControllerIntegrationTests {
         try {
             User admin = userRepository.save(User.builder()
                     .email("admin@store.com")
-                    .password("secret")
                     .role(Role.STORE_ADMINISTRATOR)
                     .username("Admin Name")
                     .build());
@@ -122,7 +121,6 @@ public class OrderControllerIntegrationTests {
         try {
             User warehouseManager = userRepository.save(User.builder()
                     .email("warehouseManager@store.com")
-                    .password("secret")
                     .role(Role.WAREHOUSE_MANAGER)
                     .username("Manager Name")
                     .build());
@@ -175,7 +173,6 @@ public class OrderControllerIntegrationTests {
         try {
             User admin = userRepository.save(User.builder()
                     .email("admin@store.com")
-                    .password("secret")
                     .role(Role.STORE_ADMINISTRATOR)
                     .username("Admin Name")
                     .build());
@@ -235,7 +232,6 @@ public class OrderControllerIntegrationTests {
         try {
             User manager = userRepository.save(User.builder()
                     .email("manager@warehouse.com")
-                    .password("secret")
                     .role(Role.WAREHOUSE_MANAGER)
                     .username("Warehouse Manager")
                     .build());
@@ -317,7 +313,6 @@ public class OrderControllerIntegrationTests {
         try {
             User admin = userRepository.save(User.builder()
                     .email("admin@store.com")
-                    .password("password")
                     .role(Role.STORE_ADMINISTRATOR)
                     .username("Store Admin")
                     .build());

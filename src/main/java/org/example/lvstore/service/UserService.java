@@ -32,7 +32,6 @@ public class UserService {
 
         User user = User.builder()
                 .username(createUserRequest.username())
-                .password(createUserRequest.password())
                 .email(createUserRequest.email())
                 .role(Role.valueOf(createUserRequest.role()))
                 .build();
@@ -64,7 +63,6 @@ public class UserService {
         User user = getUserById(updateUserRequest.id());
 
         user.setUsername(updateUserRequest.username());
-        user.setPassword(updateUserRequest.password());
         user.setEmail(updateUserRequest.email());
         user.setRole(Role.valueOf(updateUserRequest.role()));
 
