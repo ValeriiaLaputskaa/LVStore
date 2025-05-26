@@ -17,7 +17,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -30,14 +29,13 @@ public class UserServiceTest {
 
     @Test
     void testCreateUser_Success() {
-        CreateUserRequest request = new CreateUserRequest("lera", "lera123", "lera@example.com", "STORE_ADMINISTRATOR");
+        CreateUserRequest request = new CreateUserRequest("lera", "lera@example.com", "STORE_ADMINISTRATOR");
 
         when(userRepository.existsByUsername("lera")).thenReturn(false);
         when(userRepository.existsByEmail("lera@example.com")).thenReturn(false);
 
         User savedUser = User.builder()
                 .username("lera1")
-                .password("lera123")
                 .email("lera@example.com")
                 .role(Role.STORE_ADMINISTRATOR)
                 .build();
@@ -48,7 +46,6 @@ public class UserServiceTest {
 
         assertNotNull(result);
         assertEquals("lera1", result.getUsername());
-        assertEquals("lera123", result.getPassword());
         assertEquals("lera@example.com", result.getEmail());
         assertEquals(Role.STORE_ADMINISTRATOR, result.getRole());
         verify(userRepository, times(1)).save(any(User.class));
@@ -57,7 +54,7 @@ public class UserServiceTest {
 
     @Test
     void testCreateUser_UsernameExists() {
-        CreateUserRequest request = new CreateUserRequest("existing", "pass", "new@example.com", "STORE_ADMINISTRATOR");
+        CreateUserRequest request = new CreateUserRequest("existing", "new@example.com", "STORE_ADMINISTRATOR");
         when(userRepository.existsByUsername("existing")).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class, () -> userService.createUser(request));
@@ -67,7 +64,7 @@ public class UserServiceTest {
 
     @Test
     void testCreateUser_EmailExists() {
-        CreateUserRequest request = new CreateUserRequest("unique", "pass", "existing@example.com", "STORE_ADMINISTRATOR");
+        CreateUserRequest request = new CreateUserRequest("unique", "existing@example.com", "STORE_ADMINISTRATOR");
         when(userRepository.existsByUsername("unique")).thenReturn(false);
         when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
@@ -127,7 +124,7 @@ public class UserServiceTest {
 
     @Test
     void testUpdateUser_Success() {
-        UpdateUserRequest request = new UpdateUserRequest(1L, "newUser", "newPass", "new@example.com", "STORE_ADMINISTRATOR");
+        UpdateUserRequest request = new UpdateUserRequest(1L, "newUser", "new@example.com", "STORE_ADMINISTRATOR");
         User existingUser = new User();
         existingUser.setId(1L);
 
@@ -137,7 +134,6 @@ public class UserServiceTest {
         User updated = userService.updateUser(request);
 
         assertEquals("newUser", updated.getUsername());
-        assertEquals("newPass", updated.getPassword());
         assertEquals("new@example.com", updated.getEmail());
         assertEquals(Role.STORE_ADMINISTRATOR, updated.getRole());
         verify(userRepository, times(1)).findById(1L);
@@ -146,7 +142,7 @@ public class UserServiceTest {
 
     @Test
     void testUpdateUser_NotFound() {
-        UpdateUserRequest request = new UpdateUserRequest(404L, "x", "y", "z", "STORE_ADMINISTRATOR");
+        UpdateUserRequest request = new UpdateUserRequest(404L, "x", "z", "STORE_ADMINISTRATOR");
         when(userRepository.findById(404L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> userService.updateUser(request));
