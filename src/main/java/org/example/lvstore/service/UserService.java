@@ -5,6 +5,7 @@ import org.example.lvstore.entity.User;
 import org.example.lvstore.payload.user.CreateUserRequest;
 import org.example.lvstore.payload.user.UpdateUserRequest;
 import org.example.lvstore.repository.UserRepository;
+import org.example.lvstore.service.enums.Role;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,11 +32,17 @@ public class UserService {
 
         User user = User.builder()
                 .username(createUserRequest.username())
-                .password(createUserRequest.password())
                 .email(createUserRequest.email())
-                .role(createUserRequest.role())
+                .role(Role.valueOf(createUserRequest.role()))
                 .build();
         return userRepository.save(user);
+    }
+
+    public User registerUserIfAbsent(CreateUserRequest createUserRequest) {
+        if(!userRepository.existsByEmail(createUserRequest.email())) {
+            return createUser(createUserRequest);
+        }
+        return getUserByEmail(createUserRequest.email());
     }
 
     public List<User> getAllUsers() {
@@ -47,13 +54,17 @@ public class UserService {
                 .orElseThrow(() -> new NoSuchElementException(String.format("User with username '%s' not found", username)));
     }
 
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoSuchElementException(String.format("User with email '%s' not found", email)));
+    }
+
     public User updateUser(UpdateUserRequest updateUserRequest) {
         User user = getUserById(updateUserRequest.id());
 
         user.setUsername(updateUserRequest.username());
-        user.setPassword(updateUserRequest.password());
         user.setEmail(updateUserRequest.email());
-        user.setRole(updateUserRequest.role());
+        user.setRole(Role.valueOf(updateUserRequest.role()));
 
         return userRepository.save(user);
     }

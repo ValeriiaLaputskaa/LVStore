@@ -4,7 +4,7 @@ import org.example.lvstore.entity.*;
 import org.example.lvstore.payload.order.CreateOrderRequest;
 import org.example.lvstore.payload.order.UpdateOrderRequest;
 import org.example.lvstore.repository.OrderRepository;
-import org.example.lvstore.service.enams.OrderStatus;
+import org.example.lvstore.service.enums.OrderStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -163,11 +163,11 @@ public class OrderServiceTest {
     @Test
     void testGetOrdersByStatus_Success() {
         Order o = new Order();
-        when(orderRepository.findByStatus("CONFIRMED")).thenReturn(List.of(o));
+        when(orderRepository.findByStatus(OrderStatus.CONFIRMED)).thenReturn(List.of(o));
 
         List<Order> result = orderService.getOrdersByStatus("CONFIRMED");
         assertEquals(1, result.size());
-        verify(orderRepository, times(1)).findByStatus("CONFIRMED");
+        verify(orderRepository, times(1)).findByStatus(OrderStatus.CONFIRMED);
     }
 
     @Test

@@ -20,10 +20,9 @@ public class ProductController {
     private final ProductService productService;
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Product> createProduct(@RequestBody CreateProductRequest request) {
         try {
-            return ResponseEntity.ok(productService.createProduct(request));
+            return ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(request));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }

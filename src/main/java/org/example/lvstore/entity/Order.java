@@ -2,7 +2,7 @@ package org.example.lvstore.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.example.lvstore.service.enams.OrderStatus;
+import org.example.lvstore.service.enums.OrderStatus;
 
 import java.time.LocalDateTime;
 
