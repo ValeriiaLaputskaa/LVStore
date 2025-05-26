@@ -112,6 +112,9 @@ public class OrderService {
         if (order.getStatus() != OrderStatus.SHIPPED) {
             throw new IllegalStateException("Only SHIPPED orders can be marked as delivered");
         }
+
+        stockService.increaseStock(order.getProduct().getId(), order.getStore().getId(), order.getQuantity());
+
         order.setStatus(OrderStatus.RECEIVED);
         return orderRepository.save(order);
     }

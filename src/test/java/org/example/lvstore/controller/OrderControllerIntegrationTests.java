@@ -310,6 +310,7 @@ public class OrderControllerIntegrationTests {
         Long userId = null;
         Long productId = null;
         Long storeId = null;
+        Long stockId = null;
         try {
             User admin = userRepository.save(User.builder()
                     .email("admin@store.com")
@@ -329,6 +330,12 @@ public class OrderControllerIntegrationTests {
                     .price(1200.0)
                     .build());
 
+            Stock stock = stockRepository.save(Stock.builder()
+                    .product(product)
+                    .store(store)
+                    .quantity(0)
+                    .build());
+
             Order order = orderRepository.save(Order.builder()
                     .product(product)
                     .store(store)
@@ -342,6 +349,7 @@ public class OrderControllerIntegrationTests {
             userId = admin.getId();
             productId = product.getId();
             storeId = store.getId();
+            stockId = stock.getId();
 
             mockMvc.perform(put("/orders/" + orderId + "/deliver"))
                     .andExpect(status().isOk())
@@ -351,11 +359,12 @@ public class OrderControllerIntegrationTests {
             assertThat(updated.getStatus()).isEqualTo(OrderStatus.RECEIVED);
 
         } finally {
-            if (orderId != null && userId != null && productId != null && storeId != null) {
+            if (orderId != null && userId != null && productId != null && storeId != null && stockId != null) {
                 orderRepository.deleteById(orderId);
                 userRepository.deleteById(userId);
                 storeRepository.deleteById(storeId);
                 productRepository.deleteById(productId);
+                stockRepository.deleteById(stockId);
             }
         }
     }
