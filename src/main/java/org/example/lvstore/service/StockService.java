@@ -90,4 +90,11 @@ public class StockService {
         stock.setQuantity(stock.getQuantity() - quantity);
         stockRepository.save(stock);
     }
+
+    public void increaseStock(Long productId, Long storeId, Integer quantity) {
+        Stock stock = getStockByProductIdAndStoreId(productId, storeId);
+        stock.setQuantity(stock.getQuantity() + quantity);
+        stockRepository.save(stock);
+    }
+
 }
