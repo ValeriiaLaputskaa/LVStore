@@ -50,7 +50,7 @@ public class OrderService {
     }
 
     public List<Order> getOrdersByStatus(String status) {
-        return orderRepository.findByStatus(status);
+        return orderRepository.findByStatus(OrderStatus.valueOf(status));
     }
 
     public Order updateOrder(UpdateOrderRequest updateOrderRequest) {

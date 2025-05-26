@@ -30,7 +30,7 @@ public class UserServiceTest {
 
     @Test
     void testCreateUser_Success() {
-        CreateUserRequest request = new CreateUserRequest("lera", "lera123", "lera@example.com", "Store_Administrator");
+        CreateUserRequest request = new CreateUserRequest("lera", "lera123", "lera@example.com", "STORE_ADMINISTRATOR");
 
         when(userRepository.existsByUsername("lera")).thenReturn(false);
         when(userRepository.existsByEmail("lera@example.com")).thenReturn(false);
@@ -39,7 +39,7 @@ public class UserServiceTest {
                 .username("lera1")
                 .password("lera123")
                 .email("lera@example.com")
-                .role(Role.fromTitle("Store_Administrator"))
+                .role(Role.STORE_ADMINISTRATOR)
                 .build();
 
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
@@ -57,7 +57,7 @@ public class UserServiceTest {
 
     @Test
     void testCreateUser_UsernameExists() {
-        CreateUserRequest request = new CreateUserRequest("existing", "pass", "new@example.com", "Store_Administrator");
+        CreateUserRequest request = new CreateUserRequest("existing", "pass", "new@example.com", "STORE_ADMINISTRATOR");
         when(userRepository.existsByUsername("existing")).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class, () -> userService.createUser(request));
@@ -67,7 +67,7 @@ public class UserServiceTest {
 
     @Test
     void testCreateUser_EmailExists() {
-        CreateUserRequest request = new CreateUserRequest("unique", "pass", "existing@example.com", "Store_Administrator");
+        CreateUserRequest request = new CreateUserRequest("unique", "pass", "existing@example.com", "STORE_ADMINISTRATOR");
         when(userRepository.existsByUsername("unique")).thenReturn(false);
         when(userRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
@@ -127,7 +127,7 @@ public class UserServiceTest {
 
     @Test
     void testUpdateUser_Success() {
-        UpdateUserRequest request = new UpdateUserRequest(1L, "newUser", "newPass", "new@example.com", "Store_Administrator");
+        UpdateUserRequest request = new UpdateUserRequest(1L, "newUser", "newPass", "new@example.com", "STORE_ADMINISTRATOR");
         User existingUser = new User();
         existingUser.setId(1L);
 
@@ -146,7 +146,7 @@ public class UserServiceTest {
 
     @Test
     void testUpdateUser_NotFound() {
-        UpdateUserRequest request = new UpdateUserRequest(404L, "x", "y", "z", "Store_Administrator");
+        UpdateUserRequest request = new UpdateUserRequest(404L, "x", "y", "z", "STORE_ADMINISTRATOR");
         when(userRepository.findById(404L)).thenReturn(Optional.empty());
 
         assertThrows(NoSuchElementException.class, () -> userService.updateUser(request));
