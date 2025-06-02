@@ -1,5 +1,6 @@
 package org.example.lvstore.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.example.lvstore.entity.Store;
 import org.example.lvstore.payload.store.CreateStoreRequest;
@@ -14,6 +15,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/stores")
+@SecurityRequirement(name = "bearerAuth")
 public class StoreController {
 
     private final StoreService storeService;
