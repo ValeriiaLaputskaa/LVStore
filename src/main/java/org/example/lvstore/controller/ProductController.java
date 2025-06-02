@@ -1,5 +1,6 @@
 package org.example.lvstore.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.example.lvstore.entity.Product;
 import org.example.lvstore.payload.product.CreateProductRequest;
@@ -15,6 +16,7 @@ import java.util.NoSuchElementException;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/products")
+@SecurityRequirement(name = "bearerAuth")
 public class ProductController {
 
     private final ProductService productService;

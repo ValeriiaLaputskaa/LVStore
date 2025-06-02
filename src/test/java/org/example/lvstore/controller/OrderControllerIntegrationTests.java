@@ -289,7 +289,7 @@ public class OrderControllerIntegrationTests {
             Stock updatedStock = stockRepository.findById(stockId).orElseThrow();
 
             assertThat(updatedOrder.getStatus()).isEqualTo(OrderStatus.SHIPPED);
-            assertThat(updatedStock.getQuantity()).isEqualTo(5); // 10 - 5
+            assertThat(updatedStock.getQuantity()).isEqualTo(5);
 
         } finally {
             if (orderId != null && userId != null && productId != null && storeId != null && warehouseId != null && stockId != null) {
