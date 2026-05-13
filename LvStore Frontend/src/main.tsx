@@ -19,7 +19,7 @@ createRoot(document.getElementById("root")!).render(
     <QueryClientProvider client={queryClient}>
       <ChakraProvider value={defaultSystem}>
         <RouterProvider router={router} />
-      </ChakraProvider>
+      </ChakraProvider> 
     </QueryClientProvider>
   </StrictMode>,
 );
